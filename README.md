@@ -365,6 +365,53 @@ bun run lint
 bun run lint:fix
 ```
 
+## CI/CD
+
+This project uses GitHub Actions to automatically publish to npm when changes are pushed to the main branch.
+
+### Setup
+
+To enable automatic publishing, you need to configure an NPM_TOKEN secret in your GitHub repository:
+
+1. **Generate an npm access token**:
+   - Log in to [npmjs.com](https://www.npmjs.com/)
+   - Go to your profile settings → Access Tokens
+   - Click "Generate New Token" → "Classic Token"
+   - Select "Automation" type
+   - Copy the generated token
+
+2. **Add the token to GitHub**:
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `NPM_TOKEN`
+   - Value: Paste your npm token
+   - Click "Add secret"
+
+### Workflow
+
+The publish workflow (`.github/workflows/publish.yml`) automatically:
+
+1. Triggers on every push to the `main` branch
+2. Runs linting checks
+3. Builds the package
+4. Checks if the current version already exists on npm
+5. Publishes to npm (only if the version is new)
+
+**Important**: Remember to bump the version in `package.json` before merging to main if you want to publish a new version.
+
+### Version Management
+
+```bash
+# Bump patch version (1.1.0 -> 1.1.1)
+npm version patch
+
+# Bump minor version (1.1.0 -> 1.2.0)
+npm version minor
+
+# Bump major version (1.1.0 -> 2.0.0)
+npm version major
+```
+
 ## License
 
 MIT
