@@ -74,24 +74,53 @@ This project uses GitHub Actions with **npm Trusted Publishers (OIDC)** to autom
 
 ### Initial Setup
 
-To enable automatic publishing, configure a Trusted Publisher on npmjs.com:
+**For first-time publishing**, you need to publish the package manually first, then configure Trusted Publishers for automatic future releases.
+
+#### Step 1: First-time Manual Publish
+
+1. **Generate a temporary Automation token**:
+   - Log in to [npmjs.com](https://www.npmjs.com/)
+   - Go to Profile → Access Tokens
+   - Generate New Token → Classic Token → **Automation** type
+   - Copy the token
+
+2. **Publish manually from your local machine**:
+   ```bash
+   # Login with the token
+   npm login
+   # When prompted, use the token as your password
+
+   # Publish the package
+   npm publish --access public
+   ```
+
+3. **Delete the temporary token** after successful publish (for security)
+
+#### Step 2: Configure Trusted Publisher for Future Releases
+
+After the package exists on npm:
 
 1. **Configure Trusted Publisher on npm**:
-   - Log in to [npmjs.com](https://www.npmjs.com/)
-   - Go to your package page (or create the package first if it doesn't exist)
+   - Go to your package page: [npmjs.com/package/@tivecs/core](https://www.npmjs.com/package/@tivecs/core)
    - Navigate to Settings → Publishing access → Trusted Publishers
    - Click "Add Trusted Publisher" → Select "GitHub Actions"
    - Fill in the details:
-     - **Organization/User**: `TiveCS` (your GitHub username/org)
+     - **Organization/User**: `TiveCS`
      - **Repository**: `typescript-dev-core`
      - **Workflow**: `publish.yml`
-     - **Environment**: Leave blank (optional)
-   - Click "Add"
+     - **Environment**: Leave blank
+   - Click "Save changes"
 
 2. **Verify workflow permissions**:
    - The workflow already has `id-token: write` permission configured
    - No secrets or tokens need to be configured in GitHub
    - npm CLI automatically detects OIDC and uses it for authentication
+
+#### Step 3: Test Automatic Publishing
+
+1. Bump the version: `npm version patch`
+2. Commit and push to main
+3. GitHub Actions will automatically publish the new version using OIDC
 
 ### Publish Workflow
 
