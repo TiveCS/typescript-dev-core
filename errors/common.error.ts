@@ -16,4 +16,9 @@ export const CommonErrors = {
 		statusCode: HttpStatus.InternalServerError,
 		description: "An unhandled error occurred.",
 	},
+	RateLimitExceeded: {
+		code: "common.rate_limit_exceeded",
+		statusCode: HttpStatus.TooManyRequests,
+		description: "Rate limit has been exceeded. Please try again later.",
+	},
 } satisfies Record<string, CommonError>;
