@@ -23,6 +23,7 @@ yarn add @tivecs/core
 - 🎯 **Result Pattern**: Type-safe error handling without exceptions (Railway-Oriented Programming)
 - 🌐 **HTTP Status Constants**: All standard HTTP status codes with TypeScript support
 - ⚠️ **Pre-defined Errors**: Common and authentication error types with consistent structure
+- 📄 **Pagination Utilities**: Type-safe pagination helpers with Zod validation
 - 🔧 **Helper Functions**: Utility functions including Zod integration
 - 📦 **Zero Runtime Dependencies**: Only peer dependency on TypeScript
 
@@ -219,6 +220,75 @@ response.status(HttpStatus.InternalServerError).json({ error });
 // 5xx Server Errors: InternalServerError, BadGateway, ServiceUnavailable, etc.
 ```
 
+### Pagination Utilities
+
+Type-safe pagination with built-in validation and helper functions.
+
+```typescript
+import {
+  paginationRequestSchema,
+  paginationResponseSchema,
+  createPaginationResponse,
+  type PaginationRequest,
+  type PaginationResponse
+} from '@tivecs/core';
+import { z } from 'zod';
+
+// Validate pagination request
+const UserSchema = z.object({
+  id: z.string(),
+  name: z.string()
+});
+
+function getUsers(input: unknown): Result<PaginationResponse<User>> {
+  // Validate pagination parameters
+  const paginationParsed = paginationRequestSchema.safeParse(input);
+
+  if (!paginationParsed.success) {
+    return validationError(paginationParsed.error);
+  }
+
+  const { page, pageSize } = paginationParsed.data;
+
+  // Fetch data from database
+  const users = database.getUsers(page, pageSize);
+  const totalItems = database.countUsers();
+
+  // Create pagination response
+  const response = createPaginationResponse({
+    page,
+    pageSize,
+    totalItems,
+    items: users
+  });
+
+  return ok(response);
+}
+
+// Response structure:
+// {
+//   page: 1,
+//   pageSize: 10,
+//   totalItems: 100,
+//   totalPages: 10,
+//   hasNextPage: true,
+//   hasPreviousPage: false,
+//   items: [...]
+// }
+```
+
+#### Pagination Schemas
+
+```typescript
+// Request validation schema with defaults
+paginationRequestSchema
+// - page: positive integer, default 1
+// - pageSize: positive integer, max 100, default 10
+
+// Response validation schema (for API responses)
+const UserResponseSchema = paginationResponseSchema(UserSchema);
+```
+
 ### Helper Functions
 
 ```typescript
@@ -246,6 +316,9 @@ try {
 - `ErrorModel` - Base error model structure
 - `CommonError` - Common error type
 - `AuthError` - Authentication error type
+- `PaginationRequest` - Pagination request parameters
+- `PaginationResponse<T>` - Paginated response with metadata
+- `CreatePaginationResponseArgs<T>` - Arguments for creating pagination response
 
 ### Functions
 
@@ -255,12 +328,18 @@ try {
 - `validationError(zodError | fieldErrors)` - Create validation failure from Zod error
 - `toFailureResponseStruct(failResult)` - Convert failure to API response format
 - `isZodError(error)` - Type guard for Zod errors
+- `createPaginationResponse<T>(args)` - Create paginated response with metadata
 
 ### Constants
 
 - `HttpStatus` - All HTTP status codes
 - `CommonErrors` - Pre-defined common errors
 - `AuthErrors` - Pre-defined authentication errors
+
+### Schemas
+
+- `paginationRequestSchema` - Zod schema for pagination requests
+- `paginationResponseSchema(zodObject)` - Zod schema factory for pagination responses
 
 ## Best Practices
 
