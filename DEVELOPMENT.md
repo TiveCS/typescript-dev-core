@@ -70,25 +70,28 @@ git push
 
 ## CI/CD
 
-This project uses GitHub Actions to automatically publish to npm when changes are pushed to the main branch.
+This project uses GitHub Actions with **npm Trusted Publishers (OIDC)** to automatically publish to npm when changes are pushed to the main branch. This is more secure than using long-lived tokens.
 
 ### Initial Setup
 
-To enable automatic publishing, configure an NPM_TOKEN secret in your GitHub repository:
+To enable automatic publishing, configure a Trusted Publisher on npmjs.com:
 
-1. **Generate an npm access token**:
+1. **Configure Trusted Publisher on npm**:
    - Log in to [npmjs.com](https://www.npmjs.com/)
-   - Go to your profile settings → Access Tokens
-   - Click "Generate New Token" → "Classic Token"
-   - Select "Automation" type
-   - Copy the generated token
+   - Go to your package page (or create the package first if it doesn't exist)
+   - Navigate to Settings → Publishing access → Trusted Publishers
+   - Click "Add Trusted Publisher" → Select "GitHub Actions"
+   - Fill in the details:
+     - **Organization/User**: `TiveCS` (your GitHub username/org)
+     - **Repository**: `typescript-dev-core`
+     - **Workflow**: `publish.yml`
+     - **Environment**: Leave blank (optional)
+   - Click "Add"
 
-2. **Add the token to GitHub**:
-   - Go to your GitHub repository → Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Name: `NPM_TOKEN`
-   - Value: Paste your npm token
-   - Click "Add secret"
+2. **Verify workflow permissions**:
+   - The workflow already has `id-token: write` permission configured
+   - No secrets or tokens need to be configured in GitHub
+   - npm CLI automatically detects OIDC and uses it for authentication
 
 ### Publish Workflow
 
@@ -101,6 +104,29 @@ The publish workflow (`.github/workflows/publish.yml`) automatically:
 5. Publishes to npm (only if the version is new)
 
 **Important**: Remember to bump the version in `package.json` before merging to main if you want to publish a new version.
+
+### Troubleshooting CI/CD
+
+**Error: `EOTP - This operation requires a one-time password`**
+
+This means Trusted Publishing is not configured. To fix:
+1. Go to your package on [npmjs.com](https://www.npmjs.com/)
+2. Navigate to Settings → Publishing access → Trusted Publishers
+3. Add GitHub Actions as a trusted publisher with your repository details
+4. Re-run the failed workflow
+
+**Error: `E403 - You do not have permission to publish`**
+
+Make sure:
+- You have publish access to the `@tivecs` scope on npm
+- The Trusted Publisher is configured correctly with the exact repository name
+- The workflow file name matches what you configured (publish.yml)
+
+**Error: `ENOTFOUND - Package not found`**
+
+For first-time publishing:
+1. You may need to create the package on npm first
+2. Or publish manually once with an automation token, then configure Trusted Publishing for future releases
 
 ### Manual Publishing
 
