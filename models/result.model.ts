@@ -1,6 +1,7 @@
 import { type ZodError, z } from "zod";
-import { type CommonError, CommonErrors } from "../errors";
+import { CommonErrors } from "../errors";
 import { isZodError } from "../helpers";
+import type { ErrorModel } from "./error.model";
 
 export type SuccessResult<T = void> = T extends void
 	? {
@@ -13,15 +14,15 @@ export type SuccessResult<T = void> = T extends void
 
 export type FailureResult = {
 	success: false | undefined;
-	code: CommonError["code"];
-	statusCode: CommonError["statusCode"];
-	description: CommonError["description"];
+	code: ErrorModel["code"];
+	statusCode: ErrorModel["statusCode"];
+	description: ErrorModel["description"];
 	fieldErrors?: Record<string, string[]>;
 };
 
 export type FailureResultResponse = {
-	code: CommonError["code"];
-	description: CommonError["description"];
+	code: ErrorModel["code"];
+	description: ErrorModel["description"];
 	fieldErrors?: Record<string, string[]>;
 };
 
@@ -42,7 +43,7 @@ export function ok<T>(data?: T): SuccessResult<T> | SuccessResult<void> {
 }
 
 export function failure(
-	error: CommonError,
+	error: ErrorModel,
 	fieldErrors?: Record<string, string[]>,
 ): FailureResult {
 	return {
