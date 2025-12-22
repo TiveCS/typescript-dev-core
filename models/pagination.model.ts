@@ -1,5 +1,18 @@
 import z, { type ZodNumber, type ZodObject, type ZodString } from "zod";
 
+export const cursorPaginationRequestSchema = z.object({
+	limit: z.int().positive().max(100).default(10),
+	cursor: z.string().optional(),
+});
+
+export const cursorPaginationResponseSchema = (
+	zodObject: ZodObject | ZodString | ZodNumber,
+) =>
+	z.object({
+		nextCursor: z.string().nullable(),
+		items: z.array(zodObject),
+	});
+
 export const paginationRequestSchema = z.object({
 	page: z.int().positive().default(1),
 	pageSize: z.int().positive().max(100).default(10),
