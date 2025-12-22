@@ -103,23 +103,30 @@ export function toFailureResponseStruct(
 	};
 }
 
-export function isFailureResult(result: Result): result is FailureResult;
-export function isFailureResult<T>(result: Result<T>): result is FailureResult {
+export function isFailureResult(result: unknown): result is FailureResult {
 	return (
-		result.success === false ||
-		(result.success === undefined &&
-			"__brand" in result &&
-			result.__brand === "failureResult" &&
-			"code" in result &&
-			"description" in result &&
-			"statusCode" in result)
+		typeof result === "object" &&
+		result !== null &&
+		"success" in result &&
+		typeof result.success === "boolean" &&
+		(result.success === false || result.success === undefined) &&
+		"__brand" in result &&
+		result.__brand === "failureResult" &&
+		"code" in result &&
+		result.code !== undefined &&
+		typeof result.code === "string" &&
+		"statusCode" in result &&
+		typeof result.statusCode === "number" &&
+		"description" in result &&
+		typeof result.description === "string"
 	);
 }
 
-export function isSuccessResult<T>(
-	result: Result<T>,
-): result is SuccessResult<T> {
+export function isSuccessResult(result: unknown): result is SuccessResult {
 	return (
+		typeof result === "object" &&
+		result !== null &&
+		"success" in result &&
 		result.success === true &&
 		"__brand" in result &&
 		result.__brand === "successResult"
