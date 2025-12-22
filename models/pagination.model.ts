@@ -25,7 +25,7 @@ export const paginationResponseSchema = (
 		page: z.int().positive(),
 		pageSize: z.int().positive(),
 		totalItems: z.int().nonnegative(),
-		totalPages: z.int().positive(),
+		totalPages: z.int().nonnegative(),
 		hasNextPage: z.boolean(),
 		hasPreviousPage: z.boolean(),
 		items: z.array(zodObject),
