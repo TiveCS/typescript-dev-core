@@ -14,8 +14,8 @@ export const cursorPaginationResponseSchema = (
 	});
 
 export const paginationRequestSchema = z.object({
-	page: z.int().positive().default(1),
-	pageSize: z.int().positive().max(100).default(10),
+	page: z.coerce.number().int().positive().default(1),
+	pageSize: z.coerce.number().int().positive().max(100).default(10),
 });
 
 export const paginationResponseSchema = (
