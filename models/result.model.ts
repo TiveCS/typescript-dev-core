@@ -4,11 +4,13 @@ import { isZodError } from "../helpers";
 import type { ErrorModel } from "./error.model";
 
 export const successResultSchema = z.object({
+	__brand: z.literal("successResult"),
 	success: z.literal(true),
 	data: z.any().optional(),
 });
 
 export const failureResultSchema = z.object({
+	__brand: z.literal("failureResult"),
 	success: z.literal(false).or(z.undefined()),
 	code: z.string(),
 	statusCode: z.number(),
@@ -24,14 +26,17 @@ export const failureResultResponseSchema = z.object({
 
 export type SuccessResult<T = void> = T extends void
 	? {
+			__brand: "successResult";
 			success: true;
 		}
 	: {
+			__brand: "successResult";
 			success: true;
 			data: T;
 		};
 
 export type FailureResult = {
+	__brand: "failureResult";
 	success: false | undefined;
 	code: ErrorModel["code"];
 	statusCode: ErrorModel["statusCode"];
@@ -52,10 +57,12 @@ export function ok<T>(data: T): SuccessResult<T>;
 export function ok<T>(data?: T): SuccessResult<T> | SuccessResult<void> {
 	if (data === undefined) {
 		return {
+			__brand: "successResult",
 			success: true,
 		} as SuccessResult<void>;
 	}
 	return {
+		__brand: "successResult",
 		success: true,
 		data,
 	} as SuccessResult<T>;
@@ -66,6 +73,7 @@ export function failure(
 	fieldErrors?: Record<string, string[]>,
 ): FailureResult {
 	return {
+		__brand: "failureResult",
 		success: false,
 		code: error.code,
 		statusCode: error.statusCode,
@@ -95,10 +103,13 @@ export function toFailureResponseStruct(
 	};
 }
 
+export function isFailureResult(result: Result): result is FailureResult;
 export function isFailureResult<T>(result: Result<T>): result is FailureResult {
 	return (
 		result.success === false ||
 		(result.success === undefined &&
+			"__brand" in result &&
+			result.__brand === "failureResult" &&
 			"code" in result &&
 			"description" in result &&
 			"statusCode" in result)
@@ -108,5 +119,9 @@ export function isFailureResult<T>(result: Result<T>): result is FailureResult {
 export function isSuccessResult<T>(
 	result: Result<T>,
 ): result is SuccessResult<T> {
-	return result.success === true;
+	return (
+		result.success === true &&
+		"__brand" in result &&
+		result.__brand === "successResult"
+	);
 }
