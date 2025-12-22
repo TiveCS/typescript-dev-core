@@ -73,3 +73,17 @@ export const HttpStatus = {
 } as const;
 
 export type HttpStatus = (typeof HttpStatus)[keyof typeof HttpStatus];
+
+export function isOkStatus(status: HttpStatus): boolean {
+	return status >= HttpStatus.Ok && status < HttpStatus.MultipleChoices;
+}
+
+export function isClientErrorStatus(status: HttpStatus): boolean {
+	return (
+		status >= HttpStatus.BadRequest && status < HttpStatus.InternalServerError
+	);
+}
+
+export function isServerErrorStatus(status: HttpStatus): boolean {
+	return status >= HttpStatus.InternalServerError && status < 600;
+}

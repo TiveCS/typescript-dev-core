@@ -3,6 +3,25 @@ import { CommonErrors } from "../errors";
 import { isZodError } from "../helpers";
 import type { ErrorModel } from "./error.model";
 
+export const successResultSchema = z.object({
+	success: z.literal(true),
+	data: z.any().optional(),
+});
+
+export const failureResultSchema = z.object({
+	success: z.literal(false),
+	code: z.string(),
+	statusCode: z.number(),
+	description: z.string(),
+	fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
+});
+
+export const failureResultResponseSchema = z.object({
+	code: z.string(),
+	description: z.string(),
+	fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
+});
+
 export type SuccessResult<T = void> = T extends void
 	? {
 			success: true;
