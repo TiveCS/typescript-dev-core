@@ -11,7 +11,33 @@ export const cursorPaginationResponseSchema = (
 	z.object({
 		nextCursor: z.string().nullable(),
 		items: z.array(zodObject),
+		maybeHasNextPage: z.boolean(),
 	});
+
+export type CursorPaginationRequest = z.infer<
+	typeof cursorPaginationRequestSchema
+>;
+
+export type CursorPaginationResponse<T> = {
+	nextCursor: string | null;
+	items: T[];
+	maybeHasNextPage: boolean;
+};
+
+export type CreateCursorPaginationResponseArgs<T> = {
+	limit: number;
+	items: T[];
+	nextCursor: string | null;
+};
+
+export function createCursorPaginationResponse<T>(
+	args: CreateCursorPaginationResponseArgs<T>,
+) {
+	return {
+		...args,
+		maybeHasNextPage: args.items.length === args.limit,
+	};
+}
 
 export const paginationRequestSchema = z.object({
 	page: z.coerce.number().int().positive().default(1),
