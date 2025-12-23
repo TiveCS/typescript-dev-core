@@ -145,3 +145,17 @@ export function isSuccessResult(result: unknown): result is SuccessResult {
 		result.__brand === "successResult"
 	);
 }
+
+/**
+ * Converts an error code to a human-readable title
+ * @param code - The error code in format "prefix.snake_case"
+ * @returns Formatted title with prefix excluded
+ * @example getErrorCodeTitle(AuthErrors.CredentialsNotFound) // "auth.credentials_not_found" => "Credentials Not Found"
+ */
+export function getErrorCodeTitle(code: string): string {
+	return code
+		.split(".")
+		.slice(1)
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+		.join(" ");
+}
