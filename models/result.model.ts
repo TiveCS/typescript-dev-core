@@ -122,6 +122,19 @@ export function isFailureResult(result: unknown): result is FailureResult {
 	);
 }
 
+export function isFailureResponseStruct(
+	result: unknown,
+): result is FailureResultResponse {
+	return (
+		typeof result === "object" &&
+		result !== null &&
+		"code" in result &&
+		typeof result.code === "string" &&
+		"description" in result &&
+		typeof result.description === "string"
+	);
+}
+
 export function isSuccessResult(result: unknown): result is SuccessResult {
 	return (
 		typeof result === "object" &&
