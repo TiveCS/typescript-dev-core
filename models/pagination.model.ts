@@ -44,16 +44,20 @@ export const paginationRequestSchema = z.object({
 	pageSize: z.coerce.number().int().positive().max(100).default(10),
 });
 
-export const paginationResponseSchema = (
-	zodObject: ZodObject | ZodString | ZodNumber,
+export const paginationResponseSchema = z.object({
+	page: z.int().positive(),
+	pageSize: z.int().positive(),
+	totalItems: z.int().nonnegative(),
+	totalPages: z.int().nonnegative(),
+	hasNextPage: z.boolean(),
+	hasPreviousPage: z.boolean(),
+	items: z.array(z.any()),
+});
+
+export const paginationResponseSchemaFactory = <TItemType extends z.ZodTypeAny>(
+	zodObject: TItemType,
 ) =>
-	z.object({
-		page: z.int().positive(),
-		pageSize: z.int().positive(),
-		totalItems: z.int().nonnegative(),
-		totalPages: z.int().nonnegative(),
-		hasNextPage: z.boolean(),
-		hasPreviousPage: z.boolean(),
+	paginationResponseSchema.extend({
 		items: z.array(zodObject),
 	});
 
